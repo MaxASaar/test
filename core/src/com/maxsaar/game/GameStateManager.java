@@ -5,7 +5,18 @@ package com.maxsaar.game;
  */
 public class GameStateManager {
 
-    public GameStateManager(){
+    private gameStates currentState;
 
+    //Constructor
+    public GameStateManager(){
+        currentState = gameStates.MAIN_MENU;
+    }
+
+    public void setGameState(gameStates newState){
+        currentState = newState;
+    }
+
+    public gameStates getGameState(){
+        return currentState;
     }
 }

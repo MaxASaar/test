@@ -5,7 +5,7 @@ package com.maxsaar.game;
  */
 
 
-enum gameStates{
+public enum gameStates{
     MAIN_MENU,
     GAME
 }
