@@ -17,7 +17,7 @@ public class MyGdxGame extends ApplicationAdapter {
 	ArrayList<Troop> enemy = new ArrayList<Troop>();
 	@Override
 	public void create () {
-		ally.add(new Troop(troopNames.Knight, 20));
+		ally.add(new Troop(troopNames.Knight, 50));
 		batch = new SpriteBatch();
 	}
 
@@ -38,7 +38,7 @@ public class MyGdxGame extends ApplicationAdapter {
 						128
 				);
 				if(u.getX() >= getScreenWidth()){
-					u.setX(u.getX()-getScreenWidth());
+					u.setX(u.getX()-getScreenWidth() - 128);
 				}else{
 					u.move();
 				}
