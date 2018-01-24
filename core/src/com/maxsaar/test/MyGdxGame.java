@@ -7,22 +7,17 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 public class MyGdxGame extends ApplicationAdapter {
 	SpriteBatch batch;
 	int fpsPrinter = 0;
-	Unit myKnights[] = new Unit[100];
+	ArrayList<Troop> ally = new ArrayList<Troop>();
+	ArrayList<Troop> enemy = new ArrayList<Troop>();
 	@Override
 	public void create () {
-		Random rand = new Random();
-		System.out.println(myKnights[0]);
-		for(int x = 0; x < myKnights.length; x++) {
-			myKnights[x] = new Unit(new Texture("basic_knight.png"), 0, rand.nextInt(getScreenHeight()-128));
-//			myKnights[x].texmex = new Texture("basic_knight.png");
-//			myKnights[x].startX = 0;
-//			myKnights[x].startY = rand.nextInt(getScreenHeight()-64);
-		}
+		ally.add(new Troop(troopNames.Knight, 20));
 		batch = new SpriteBatch();
 	}
 
@@ -32,30 +27,32 @@ public class MyGdxGame extends ApplicationAdapter {
 		printFps();
 		Gdx.gl.glClearColor(1, 1, 1, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-		for(Unit x: myKnights){
-			batch.begin();
-			batch.draw(
-					x.texmex,
-					x.startX,
-					x.startY,
-					128,
-					128
-			);
-			if(x.startX >= getScreenWidth()){
-				x.startX-=getScreenWidth();
-			}else{
-				x.startX+=5;
+		batch.begin();
+		for (Troop x: ally) {
+			for (Unit u: x.getTroop()) {
+				batch.draw(
+						x.getTexmex(),
+						u.getX(),
+						u.getY(),
+						128,
+						128
+				);
+				if(u.getX() >= getScreenWidth()){
+					u.setX(u.getX()-getScreenWidth());
+				}else{
+					u.move();
+				}
 			}
-			batch.end();
 		}
+		batch.end();
 
 	}
 	
 	@Override
 	public void dispose () {
 		batch.dispose();
-		for (Unit y: myKnights) {
-			y.texmex.dispose();
+		for (Troop x: ally) {
+			x.getTexmex().dispose();
 		}
 	}
 
