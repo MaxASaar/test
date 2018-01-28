@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class MyGdxGame extends ApplicationAdapter implements GestureDetector.GestureListener {
+	gameStates currentState; // the state of the game
 	SpriteBatch batch;
 	int fpsPrinter = 0;
 	ArrayList<Troop> ally = new ArrayList<Troop>();
@@ -34,6 +35,7 @@ public class MyGdxGame extends ApplicationAdapter implements GestureDetector.Ges
 	Sprite mapSprite;
 	@Override
 	public void create () {
+		currentState = gameStates.MAIN_MENU; // starts at the main menu when load app
 		//Makes libgdx handle gestures
 		Gdx.input.setInputProcessor(new GestureDetector(this));
 		//Sets the background
@@ -63,104 +65,107 @@ public class MyGdxGame extends ApplicationAdapter implements GestureDetector.Ges
 		printFps();
 		handleCamera();
 		cam.update();
-		Gdx.gl.glClearColor(1, 1, 1, 1);
+		Gdx.gl.glClearColor(1, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-		world.step(1/60f, 6, 2);
-		batch.setProjectionMatrix(cam.combined);
-		batch.begin();
-		mapSprite.draw(batch);
-		for (Troop x: ally) {
-			for (Unit u: x.getTroop()) {
-				batch.draw(
-						x.getTexmex(),
-						u.getBody().getPosition().x,
-						u.getBody().getPosition().y,
-						64,
-						64
-				);
-				//Find closest enemy to unit u
-				Unit closestEnemy = null;
-				double closestDistance = -1;
-				for (Troop y: enemy) {
-					for (Unit e: y.getTroop()) {
-						double distance = Math.sqrt(Math.pow((e.getBody().getPosition().x - u.getBody().getPosition().x),2) + Math.pow((e.getBody().getPosition().y - u.getBody().getPosition().y),2));
-						if (closestDistance == -1) {
-							closestDistance = distance;
-						}
-						System.out.println("Distance " + distance);
-						if (distance < 1000 && distance > 200) {
-							System.out.println("Distance < 1000");
-							u.changeState(unitState.AGGRO);
-							if (closestDistance > distance) {
-								closestDistance = distance;
-								closestEnemy = e;
-							}
-						}
-						else if (distance <= 200) {
-							System.out.println("Distance < 200");
-							//Point of no return will only change target if enemy dies
-							u.changeState(unitState.AGGRO);
-							closestDistance = distance;
-							closestEnemy = e;
-							u.setEnemyTarget(e);
-						}
-					}
-				}
-				int xx = 0;
-				int yy = 0;
-				if (closestEnemy != null && u.getEnemyTarget() != null) {
-					if((u.getEnemyTarget().getBody().getPosition().x - u.getBody().getPosition().x) < 0){
-						//Enemy is on the left
-						xx = -1;
-					}
-					else {
-						//Enemy is on the right
-						xx = 1;
-					}
-					if ((u.getEnemyTarget().getBody().getPosition().y - u.getBody().getPosition().y) < 0) {
-						//Enemy is on bottom
-						yy = -1;
-					}
-					else {
-						//Enemy is on top
-						yy = 1;
-					}
-				}
-				else if (closestEnemy != null && u.getEnemyTarget() == null) {
-					if((closestEnemy.getBody().getPosition().x - u.getBody().getPosition().x) < 0){
-						//Enemy is on the left
-						xx = -1;
-					}
-					else {
-						//Enemy is on the right
-						xx = 1;
-					}
-					if ((closestEnemy.getBody().getPosition().y - u.getBody().getPosition().y) < 0) {
-						//Enemy is on bottom
-						yy = -1;
-					}
-					else {
-						//Enemy is on top
-						yy = 1;
-					}
-				}
-				u.move(1, xx, yy);
+		if (currentState == gameStates.GAME) {
+      world.step(1/60f, 6, 2);
+      batch.setProjectionMatrix(cam.combined);
+      batch.begin();
+      mapSprite.draw(batch);
+      for (Troop x: ally) {
+        for (Unit u: x.getTroop()) {
+          batch.draw(
+              x.getTexmex(),
+              u.getBody().getPosition().x,
+              u.getBody().getPosition().y,
+              64,
+              64
+          );
+          //Find closest enemy to unit u
+          Unit closestEnemy = null;
+          double closestDistance = -1;
+          for (Troop y: enemy) {
+            for (Unit e: y.getTroop()) {
+              double distance = Math.sqrt(Math.pow((e.getBody().getPosition().x - u.getBody().getPosition().x),2) + Math.pow((e.getBody().getPosition().y - u.getBody().getPosition().y),2));
+              if (closestDistance == -1) {
+                closestDistance = distance;
+              }
+              System.out.println("Distance " + distance);
+              if (distance < 1000 && distance > 200) {
+                System.out.println("Distance < 1000");
+                u.changeState(unitState.AGGRO);
+                if (closestDistance > distance) {
+                  closestDistance = distance;
+                  closestEnemy = e;
+                }
+              }
+              else if (distance <= 200) {
+                System.out.println("Distance < 200");
+                //Point of no return will only change target if enemy dies
+                u.changeState(unitState.AGGRO);
+                closestDistance = distance;
+                closestEnemy = e;
+                u.setEnemyTarget(e);
+              }
+            }
+          }
+          int xx = 0;
+          int yy = 0;
+          if (closestEnemy != null && u.getEnemyTarget() != null) {
+            if((u.getEnemyTarget().getBody().getPosition().x - u.getBody().getPosition().x) < 0){
+              //Enemy is on the left
+              xx = -1;
+            }
+            else {
+              //Enemy is on the right
+              xx = 1;
+            }
+            if ((u.getEnemyTarget().getBody().getPosition().y - u.getBody().getPosition().y) < 0) {
+              //Enemy is on bottom
+              yy = -1;
+            }
+            else {
+              //Enemy is on top
+              yy = 1;
+            }
+          }
+          else if (closestEnemy != null && u.getEnemyTarget() == null) {
+            if((closestEnemy.getBody().getPosition().x - u.getBody().getPosition().x) < 0){
+              //Enemy is on the left
+              xx = -1;
+            }
+            else {
+              //Enemy is on the right
+              xx = 1;
+            }
+            if ((closestEnemy.getBody().getPosition().y - u.getBody().getPosition().y) < 0) {
+              //Enemy is on bottom
+              yy = -1;
+            }
+            else {
+              //Enemy is on top
+              yy = 1;
+            }
+          }
+          u.move(1, xx, yy);
+        }
+      }
+      for (Troop x: enemy) {
+        for (Unit u: x.getTroop()) {
+          batch.draw(
+              x.getTexmex(),
+              u.getBody().getPosition().x,
+              u.getBody().getPosition().y,
+              64,
+              64, 0, 0, 16, 16, true, false
+          );
+          u.move(0, 0, 0);
+        }
 			}
+			batch.end();
+		}else if(currentState == gameStates.MAIN_MENU){
+			//xd
 		}
-		for (Troop x: enemy) {
-			for (Unit u: x.getTroop()) {
-				batch.draw(
-						x.getTexmex(),
-						u.getBody().getPosition().x,
-						u.getBody().getPosition().y,
-						64,
-						64, 0, 0, 16, 16, true, false
-				);
-				u.move(0, 0, 0);
-			}
-		}
-		batch.end();
-
 	}
 	
 	@Override
@@ -210,6 +215,13 @@ public class MyGdxGame extends ApplicationAdapter implements GestureDetector.Ges
 
 	@Override
 	public boolean tap(float x, float y, int count, int button) {
+		if (currentState == gameStates.MAIN_MENU){
+			currentState = gameStates.GAME;
+		}
+		else if (currentState == gameStates.GAME){
+			currentState = gameStates.MAIN_MENU;
+			Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+		}
 		return false;
 	}
 
