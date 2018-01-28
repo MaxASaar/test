@@ -24,10 +24,13 @@ public class Unit {
     private int moveSpd; //Pixels per Frame
     private ArrayList<Buff> buffs = new ArrayList<Buff>();
     private Body body;
-    public Unit(int X, int Y, int hp, int attack, double attackSpd, int moveSpd, Buff[] buffs) {
+    private unitState state;
+    private Unit enemyTarget = null;
+    public Unit(int X, int Y, int hp, int attack, double attackSpd, int moveSpd, Buff[] buffs, unitState state) {
         this.Y = Y;
         this.X = X;
         this.hp = hp;
+        this.state = state;
         this.attack = attack;
         this.attackSpd = attackSpd;
         this.moveSpd = moveSpd;
@@ -44,16 +47,24 @@ public class Unit {
         bodyDef.position.set(X, Y);
         body = world.createBody(bodyDef);
         PolygonShape shape = new PolygonShape();
-        shape.setAsBox(64, 64);
+        shape.setAsBox(64/2, 64/2);
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.shape = shape;
-        fixtureDef.density = 0.001f;
+        fixtureDef.density = 0.01f;
         Fixture fixture = body.createFixture(fixtureDef);
         shape.dispose();
     }
 
     public Body getBody() {
         return body;
+    }
+
+    public Unit getEnemyTarget() {
+        return enemyTarget;
+    }
+
+    public void setEnemyTarget(Unit e) {
+        enemyTarget = e;
     }
 
     public void addBuff(Buff b) {
@@ -80,13 +91,34 @@ public class Unit {
         this.buffs.clear();
     }
 
-    public void move(int right) {
+    public void move(int right, float x, float y) {
+        if (state != unitState.MOVE) {
+            return;
+        }
         if (right == 0) {
-            body.applyLinearImpulse(-1000.0f, 0, body.getPosition().x, body.getPosition().y, true);
+            if (state == unitState.AGGRO){
+                body.applyLinearImpulse(1000.0f*x, 1000.0f*y, body.getPosition().x, body.getPosition().y, true);
+            }
+            else {
+                body.applyLinearImpulse(-1000.0f, 0, body.getPosition().x, body.getPosition().y, true);
+            }
         }
         else {
-            body.applyLinearImpulse(1000.0f, 0, body.getPosition().x, body.getPosition().y, true);
+            if (state == unitState.AGGRO) {
+                body.applyLinearImpulse(1000.0f*x, 1000.0f*y, body.getPosition().x, body.getPosition().y, true);
+            }
+            else {
+                body.applyLinearImpulse(1000.0f, 0, body.getPosition().x, body.getPosition().y, true);
+            }
         }
+    }
+
+    public void changeState(unitState state) {
+        this.state = state;
+    }
+
+    public unitState getState() {
+        return state;
     }
 
     public int getY() {

@@ -12,9 +12,6 @@ public class Buff {
     private Texture texmex;
     public Buff(buffNames name) {
         startTime = System.nanoTime();
-        if (name == buffNames.Garrison_Haste) {
-            duration = 5.0;
-        }
     }
 
     public boolean expired() {

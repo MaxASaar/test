@@ -30,9 +30,9 @@ public class Troop {
             texmex = new Texture("basic_knight.png");
             Unit knight;
             if (right == 0) {
-                knight = new Unit(Gdx.graphics.getWidth()+ 50* xgap, rand.nextInt(Gdx.graphics.getHeight()-128), 50, 50, 2.0, 5, null);
+                knight = new Unit(Gdx.graphics.getWidth()+ 50* xgap, rand.nextInt(Gdx.graphics.getHeight()-128), 50, 50, 2.0, 5, null, unitState.MOVE);
             }else {
-                knight = new Unit(-50 * xgap, rand.nextInt(Gdx.graphics.getHeight()-128), 50, 50, 2.0, 5, null);
+                knight = new Unit(-50 * xgap, rand.nextInt(Gdx.graphics.getHeight()-128), 50, 50, 2.0, 5, null, unitState.MOVE);
             }
             return knight;
         }

@@ -5,5 +5,5 @@ package com.maxsaar.test;
  */
 
 public enum buffNames {
-    Garrison_Haste
+    GARRISON_HASTE
 }
