@@ -34,17 +34,21 @@ public class MyGdxGame extends ApplicationAdapter implements GestureDetector.Ges
 	Sprite mapSprite;
 	@Override
 	public void create () {
+		//Makes libgdx handle gestures
 		Gdx.input.setInputProcessor(new GestureDetector(this));
+		//Sets the background
 		mapSprite = new Sprite(new Texture("background.png"));
 		mapSprite.setPosition(0,0);
 		mapSprite.setSize(WORLD_WIDTH, WORLD_HEIGHT);
+		//Creates cam that is 1920x1080 (1 screen)
 		cam = new OrthographicCamera(1920, 1080);
 		cam.position.set(cam.viewportWidth / 2f, cam.viewportHeight / 2f, 0);
 		cam.update();
-		ally.add(new Troop(troopNames.Knight, 50, 1));
-		enemy.add(new Troop(troopNames.Knight, 50, 0));
 
+		ally.add(new Troop(troopNames.Knight, 50, 1));
+		enemy.add(new Troop(troopNames.Knight, 2, 0));
 		world = new World(new Vector2(0, 0), true);
+		//Sets the default body for each unit
 		for (Troop x: ally) {
 			x.createBodies(world);
 		}
@@ -71,10 +75,76 @@ public class MyGdxGame extends ApplicationAdapter implements GestureDetector.Ges
 						x.getTexmex(),
 						u.getBody().getPosition().x,
 						u.getBody().getPosition().y,
-						128,
-						128
+						64,
+						64
 				);
-				u.move(1);
+				//Find closest enemy to unit u
+				Unit closestEnemy = null;
+				double closestDistance = -1;
+				for (Troop y: enemy) {
+					for (Unit e: y.getTroop()) {
+						double distance = Math.sqrt(Math.pow((e.getBody().getPosition().x - u.getBody().getPosition().x),2) + Math.pow((e.getBody().getPosition().y - u.getBody().getPosition().y),2));
+						if (closestDistance == -1) {
+							closestDistance = distance;
+						}
+						System.out.println("Distance " + distance);
+						if (distance < 1000 && distance > 200) {
+							System.out.println("Distance < 1000");
+							u.changeState(unitState.AGGRO);
+							if (closestDistance > distance) {
+								closestDistance = distance;
+								closestEnemy = e;
+							}
+						}
+						else if (distance <= 200) {
+							System.out.println("Distance < 200");
+							//Point of no return will only change target if enemy dies
+							u.changeState(unitState.AGGRO);
+							closestDistance = distance;
+							closestEnemy = e;
+							u.setEnemyTarget(e);
+						}
+					}
+				}
+				int xx = 0;
+				int yy = 0;
+				if (closestEnemy != null && u.getEnemyTarget() != null) {
+					if((u.getEnemyTarget().getBody().getPosition().x - u.getBody().getPosition().x) < 0){
+						//Enemy is on the left
+						xx = -1;
+					}
+					else {
+						//Enemy is on the right
+						xx = 1;
+					}
+					if ((u.getEnemyTarget().getBody().getPosition().y - u.getBody().getPosition().y) < 0) {
+						//Enemy is on bottom
+						yy = -1;
+					}
+					else {
+						//Enemy is on top
+						yy = 1;
+					}
+				}
+				else if (closestEnemy != null && u.getEnemyTarget() == null) {
+					if((closestEnemy.getBody().getPosition().x - u.getBody().getPosition().x) < 0){
+						//Enemy is on the left
+						xx = -1;
+					}
+					else {
+						//Enemy is on the right
+						xx = 1;
+					}
+					if ((closestEnemy.getBody().getPosition().y - u.getBody().getPosition().y) < 0) {
+						//Enemy is on bottom
+						yy = -1;
+					}
+					else {
+						//Enemy is on top
+						yy = 1;
+					}
+				}
+				u.move(1, xx, yy);
 			}
 		}
 		for (Troop x: enemy) {
@@ -83,10 +153,10 @@ public class MyGdxGame extends ApplicationAdapter implements GestureDetector.Ges
 						x.getTexmex(),
 						u.getBody().getPosition().x,
 						u.getBody().getPosition().y,
-						128,
-						128
+						64,
+						64, 0, 0, 16, 16, true, false
 				);
-				u.move(0);
+				u.move(0, 0, 0);
 			}
 		}
 		batch.end();
